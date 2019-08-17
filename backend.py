@@ -1,10 +1,12 @@
 from flask import Flask
 from flask import jsonify
 from flask_cors import CORS
+from pybrain.datasets import SupervisedDataSet
 from pybrain.tools.shortcuts import buildNetwork
 from datetime import datetime
 
 import pandas
+import pickle
 import random
 
 app = Flask(__name__)
@@ -48,7 +50,21 @@ def get_item_statistic_history(item_name):
   return []
 
 def get_item_machine_history(item_name):
-  return []
+  output = []
+
+  filtered = DATA[DATA[item_name] != 0]
+
+  fileObj = open(item_name + '.model', 'rb')
+  net = pickle.load(fileObj)
+#  int(datetime.strptime('2/7/2019', '%d/%m/%Y').strftime('%S'))
+  
+  for index, row in filtered.iterrows():
+    output.append({
+      'timestamp': datetime.strptime(row.date, '%d/%m/%Y').strftime('%m/%d/%Y') + ' ' + row['arrival_ timestamp'],
+      'amount': net.activate([int(datetime.strptime(row.date, '%d/%m/%Y').strftime('%S')), row[item_name]])[0]
+    })
+  
+  return output
 
 @app.route('/')
 def index_not_found():
