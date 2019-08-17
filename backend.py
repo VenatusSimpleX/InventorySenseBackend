@@ -2,6 +2,7 @@ from flask import Flask
 from flask import jsonify
 from flask_cors import CORS
 from pybrain.tools.shortcuts import buildNetwork
+from timedate import timedate
 
 import pandas
 import random
@@ -37,7 +38,7 @@ def get_item_original_history(item_name):
   
   for index, row in filtered.iterrows():
     output.append({
-      'timestamp': row.date + ' ' + row['arrival_ timestamp'],
+      'timestamp': timedate.strptime(row.date, '%d/%m/%Y').strftime('%m/%d/%Y') + ' ' + row['arrival_ timestamp'],
       'amount': row[item_name]
     })
   
