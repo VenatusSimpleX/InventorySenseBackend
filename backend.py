@@ -1,10 +1,13 @@
 from flask import Flask
 from flask import jsonify
+from flask_cors import CORS
+from pybrain.tools.shortcuts import buildNetwork
 
 import pandas
 import random
 
 app = Flask(__name__)
+CORS(app)
 
 DATA = pandas.read_csv('cleaned_data.csv')
 print(DATA.columns)
@@ -15,7 +18,11 @@ for i in range(3, len(DATA.columns) - 1):
     'name': DATA.columns[i],
     'itemCode': random.randint(100000, 999999),
     'quantity': random.randint(1, 99),
-    'status': 'In stock'
+    'status': 'In stock',
+    'prediction': {
+      'statistic': 0,
+      'machine': 0
+    }
   })
 
 def get_item_name(code):
@@ -36,6 +43,12 @@ def get_item_original_history(item_name):
   
   return output
 
+def get_item_statistic_history(item_name):
+  return []
+
+def get_item_machine_history(item_name):
+  return []
+
 @app.route('/')
 def index_not_found():
   return jsonify({
@@ -51,9 +64,11 @@ def get_item_history(item_code):
   item_name = get_item_name(item_code)
 
   original = get_item_original_history(item_name)
+  statistics = get_item_statistic_history(item_name)
+  machine = get_item_machine_history(item_name)
 
   return jsonify({
     'original': original,
-    'statistics': [],
-    'machine': []
+    'statistics': statistics,
+    'machine': machine
   }), 200
